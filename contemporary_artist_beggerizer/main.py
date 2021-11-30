@@ -5,7 +5,7 @@ import random as rand
 color_list = []
 colors = colorgram.extract('hirst_img.jpg', 30)
 for color in colors:
-    if color.rgb.r < 220 and color.rgb.g < 220 and color.rgb.b < 220:
+    if color.rgb.r < 250 and color.rgb.g < 250 and color.rgb.b < 250:
         r = color.rgb.r
         g = color.rgb.g
         b = color.rgb.b
