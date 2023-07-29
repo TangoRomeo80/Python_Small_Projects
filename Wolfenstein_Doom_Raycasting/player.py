@@ -60,18 +60,24 @@ class Player:
         self.check_wall_collision(dx, dy)
 
         if keys[pg.K_LEFT]:
+            # Update the player angle
             self.angle -= PLAYER_ROT_SPEED * self.game.delta_time
         if keys[pg.K_RIGHT]:
+            # Update the player angle
             self.angle += PLAYER_ROT_SPEED * self.game.delta_time
+        # Ensure the angle is between 0 and 2pi
         self.angle %= math.tau
 
     # Method to check the wall
     def check_wall(self, x, y):
+        # if the player position is false in map return true
         return (x, y) not in self.game.map.world_map
 
     # Method to check the wall collision
     def check_wall_collision(self, dx, dy):
+        # set the scale of the player size
         scale = PLAYER_SIZE_SCALE / self.game.delta_time
+        # if the player position is true in map return true
         if self.check_wall(int(self.x + dx * scale), int(self.y)):
             self.x += dx
         if self.check_wall(int(self.x), int(self.y + dy * scale)):
