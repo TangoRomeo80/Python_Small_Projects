@@ -47,3 +47,18 @@ class Map:
         self.mini_map = mini_map # Define the mini map
         self.world_map = {} # This will be obtained by iterating through the mini map
         self.get_map() # Method to get the map
+
+    # Method to get the map
+    def get_map(self):
+        # Iterate through the mini map
+        for j, row in enumerate(self.mini_map):
+            # Iterate through the row
+            for i, value in enumerate(row):
+                # If the value is not empty
+                if value:
+                    self.world_map[(i, j)] = value
+
+    # Method to draw the map
+    def draw(self):
+        [pg.draw.rect(self.game.screen, 'darkgray', (pos[0] * 100, pos[1] * 100, 100, 100), 2)
+         for pos in self.world_map]

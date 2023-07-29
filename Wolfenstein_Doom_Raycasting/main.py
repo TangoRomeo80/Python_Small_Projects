@@ -3,6 +3,8 @@
 import pygame as pg
 import sys
 from settings import *
+from map import *
+from player import *
 
 # Game class to initialize and configure the game
 class Game:
@@ -11,20 +13,26 @@ class Game:
         pg.init() # Initialize pygame
         self.screen = pg.display.set_mode(RES) # Set the screen resolution
         self.clock = pg.time.Clock() # Set the clock
+        self.delta_time = 1 # Time that has passed since the last frame
+        self.new_game() # Start a new game
 
     # Method to start new game
     def new_game(self):
-        pass # TODO: Add code here
+        self.map = Map(self) # Create a new map
+        self.player = Player(self) # Create a new player
 
     # Method to update the screen
     def update(self):
+        self.player.update() # Update the player
         pg.display.flip() # Update the whole screen
-        self.clock.tick(FPS) # Set the frame update
+        self.delta_time = self.clock.tick(FPS) # Set the frame update
         pg.display.set_caption(f'{self.clock.get_fps() :.1f}') # Set the caption
     
     # Method to paint screen
     def draw(self):
         self.screen.fill('black') # Will fill the screen with black color, will be removed later
+        self.map.draw() # Draw the map
+        self.player.draw() # Draw the player
 
     # Method to check events and handle events
     def check_events(self):
