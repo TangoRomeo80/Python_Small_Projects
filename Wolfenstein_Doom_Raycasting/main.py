@@ -5,6 +5,7 @@ import sys
 from settings import *
 from map import *
 from player import *
+from raycasting import *
 
 # Game class to initialize and configure the game
 class Game:
@@ -20,10 +21,12 @@ class Game:
     def new_game(self):
         self.map = Map(self) # Create a new map
         self.player = Player(self) # Create a new player
+        self.raycasting = Raycasting(self) # Create a new raycasting
 
     # Method to update the screen
     def update(self):
         self.player.update() # Update the player
+        self.raycasting.update() # Update the raycasting
         pg.display.flip() # Update the whole screen
         self.delta_time = self.clock.tick(FPS) # Set the frame update
         pg.display.set_caption(f'{self.clock.get_fps() :.1f}') # Set the caption
