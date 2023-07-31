@@ -34,8 +34,8 @@ class Game:
     # Method to paint screen
     def draw(self):
         self.screen.fill('black') # Will fill the screen with black color, will be removed later
-        self.map.draw() # Draw the map
-        self.player.draw() # Draw the player
+        # self.map.draw() # Draw the map
+        # self.player.draw() # Draw the player
 
     # Method to check events and handle events
     def check_events(self):
