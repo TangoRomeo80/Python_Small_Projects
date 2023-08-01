@@ -6,12 +6,14 @@ from settings import *
 from map import *
 from player import *
 from raycasting import *
+from object_renderer import *
 
 # Game class to initialize and configure the game
 class Game:
     # Constructor to initialize the game
     def __init__(self):
         pg.init() # Initialize pygame
+        pg.mouse.set_visible(False) # Hide the mouse cursor
         self.screen = pg.display.set_mode(RES) # Set the screen resolution
         self.clock = pg.time.Clock() # Set the clock
         self.delta_time = 1 # Time that has passed since the last frame
@@ -21,6 +23,7 @@ class Game:
     def new_game(self):
         self.map = Map(self) # Create a new map
         self.player = Player(self) # Create a new player
+        self.object_renderer = ObjectRenderer(self) # Create a new object renderer
         self.raycasting = Raycasting(self) # Create a new raycasting
 
     # Method to update the screen
@@ -33,7 +36,8 @@ class Game:
     
     # Method to paint screen
     def draw(self):
-        self.screen.fill('black') # Will fill the screen with black color, will be removed later
+        # self.screen.fill('black') # Will fill the screen with black color, will be removed later
+        self.object_renderer.draw() # Draw the objects
         # self.map.draw() # Draw the map
         # self.player.draw() # Draw the player
 

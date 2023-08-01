@@ -19,6 +19,15 @@ PLAYER_ROT_SPEED = 0.002
 PLAYER_SIZE_SCALE = 60
 # PLAYER_MAX_HEALTH = 100
 
+# Mouse settings
+MOUSE_SENSITIVITY = 0.0003
+MOUSE_MAX_REL = 40
+MOUSE_BORDER_LEFT = 100
+MOUSE_BORDER_RIGHT = WIDTH - MOUSE_BORDER_LEFT
+
+# efine floor color
+FLOOR_COLOR = (30, 30, 30)
+
 # Ray casting settings
 FOV = math.pi / 3 # Define the field of view
 HALF_FOV = FOV / 2 # Define the half of the field of view
@@ -30,3 +39,7 @@ MAX_DEPTH = 20 # Define the max depth or max draw distance
 # Settings for screen distance render in 3D
 SCREEN_DIST = HALF_WIDTH / math.tan(HALF_FOV)
 SCALE = WIDTH // NUM_RAYS # Define the scale for the 3D rendering for better performance
+
+# Texture size settings
+TEXTURE_SIZE = 256
+HALF_TEXTURE_SIZE = TEXTURE_SIZE // 2

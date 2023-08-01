@@ -9,9 +9,37 @@ class Raycasting:
     # Initialize the class with the game object
     def __init__(self, game):
         self.game = game
+        self.ray_casting_result = [] # List to store the raycasting result
+        self.objects_to_render = [] # List to store the objects to render
+        self.textures = self.game.object_renderer.wall_textures
+
+    # Method to get drawing objects
+    def get_objects_to_render(self):
+        self.objects_to_render = []
+        for ray, values in enumerate(self.ray_casting_result):
+            depth, proj_height, texture, offset = values
+
+            if proj_height < HEIGHT:
+                wall_column = self.textures[texture].subsurface(
+                    offset * (TEXTURE_SIZE - SCALE), 0, SCALE, TEXTURE_SIZE
+                )
+                wall_column = pg.transform.scale(wall_column, (SCALE, proj_height))
+                wall_pos = (ray * SCALE, HALF_HEIGHT - proj_height // 2)
+            else:
+                texture_height = TEXTURE_SIZE * HEIGHT / proj_height
+                wall_column = self.textures[texture].subsurface(
+                    offset * (TEXTURE_SIZE - SCALE), HALF_TEXTURE_SIZE - texture_height // 2,
+                    SCALE, texture_height
+                )
+                wall_column = pg.transform.scale(wall_column, (SCALE, HEIGHT))
+                wall_pos = (ray * SCALE, 0)
+
+            self.objects_to_render.append((depth, wall_column, wall_pos))
 
     # Method to cast a ray
     def ray_cast(self):
+        self.ray_casting_result = []
+        texture_vert, texture_hor = 1, 1
         ox, oy = self.game.player.pos # Get the player position
         x_map, y_map = self.game.player.map_pos # Get the player map position
 
@@ -64,11 +92,15 @@ class Raycasting:
 
             ray_angle += DELTA_ANGLE # Increment the ray angle
 
-            # Determine the depth
+            # depth, texture offset
             if depth_vert < depth_hor:
-                depth =  depth_vert
+                depth, texture = depth_vert, texture_vert
+                y_vert %= 1
+                offset = y_vert if cos_a > 0 else (1 - y_vert)
             else:
-                depth = depth_hor
+                depth, texture = depth_hor, texture_hor
+                x_hor %= 1
+                offset = (1 - x_hor) if sin_a > 0 else x_hor
 
             # remove fishbowl effect
             depth *= math.cos(self.game.player.angle - ray_angle)
@@ -76,14 +108,19 @@ class Raycasting:
             # projection of the wall slice
             proj_height = SCREEN_DIST / (depth + 0.0001) # Add a small value to avoid division by 0
 
-            # Draw walls
-            color = [255 / (1 + depth ** 5 * 0.00002)] * 3
-            pg.draw.rect(
-                self.game.screen, color,
-                (ray * SCALE, HALF_HEIGHT - proj_height // 2, SCALE, proj_height)
-            )
+            # ray casting result
+            self.ray_casting_result.append((depth, proj_height, texture, offset))
+
+            # # Draw walls
+            # color = [255 / (1 + depth ** 5 * 0.00002)] * 3
+            # pg.draw.rect(
+            #     self.game.screen, color,
+            #     (ray * SCALE, HALF_HEIGHT - proj_height // 2, SCALE, proj_height)
+            # )
 
     # Method to update the raycasting
     def update(self):
         # Call the raycast method
         self.ray_cast()
+        # Call the get_objects_to_render method
+        self.get_objects_to_render()
