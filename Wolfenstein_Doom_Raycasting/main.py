@@ -7,6 +7,8 @@ from map import *
 from player import *
 from raycasting import *
 from object_renderer import *
+from sprite_object import *
+from object_handler import *
 
 # Game class to initialize and configure the game
 class Game:
@@ -25,11 +27,17 @@ class Game:
         self.player = Player(self) # Create a new player
         self.object_renderer = ObjectRenderer(self) # Create a new object renderer
         self.raycasting = Raycasting(self) # Create a new raycasting
+        # self.static_sprite = SpriteObject(self) # Create a new sprite object
+        # self.animated_sprite = AnimatedSprite(self) # Create a new
+        self.object_handler = ObjectHandler(self) # Create a new object handler
 
     # Method to update the screen
     def update(self):
         self.player.update() # Update the player
         self.raycasting.update() # Update the raycasting
+        self.object_handler.update() # Update the object handler
+        # self.static_sprite.update() # Update the sprite object
+        # self.animated_sprite.update() # Update the animated sprite
         pg.display.flip() # Update the whole screen
         self.delta_time = self.clock.tick(FPS) # Set the frame update
         pg.display.set_caption(f'{self.clock.get_fps() :.1f}') # Set the caption
