@@ -9,6 +9,8 @@ from raycasting import *
 from object_renderer import *
 from sprite_object import *
 from object_handler import *
+from weapon import *
+from sound import *
 
 # Game class to initialize and configure the game
 class Game:
@@ -30,6 +32,8 @@ class Game:
         # self.static_sprite = SpriteObject(self) # Create a new sprite object
         # self.animated_sprite = AnimatedSprite(self) # Create a new
         self.object_handler = ObjectHandler(self) # Create a new object handler
+        self.weapon = Weapon(self) # Create a new weapon
+        self.sound = Sound(self) # Create a new sound object
 
     # Method to update the screen
     def update(self):
@@ -38,6 +42,7 @@ class Game:
         self.object_handler.update() # Update the object handler
         # self.static_sprite.update() # Update the sprite object
         # self.animated_sprite.update() # Update the animated sprite
+        self.weapon.update() # Update the weapon
         pg.display.flip() # Update the whole screen
         self.delta_time = self.clock.tick(FPS) # Set the frame update
         pg.display.set_caption(f'{self.clock.get_fps() :.1f}') # Set the caption
@@ -46,6 +51,7 @@ class Game:
     def draw(self):
         # self.screen.fill('black') # Will fill the screen with black color, will be removed later
         self.object_renderer.draw() # Draw the objects
+        self.weapon.draw() # Draw the weapon
         # self.map.draw() # Draw the map
         # self.player.draw() # Draw the player
 
@@ -56,6 +62,8 @@ class Game:
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                 pg.quit() # Quit pygame
                 sys.exit() # Exit the program
+            # Check for gun fire
+            self.player.single_fire_event(event)
 
     # Method to run the game
     def run(self):

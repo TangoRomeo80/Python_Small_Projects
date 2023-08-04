@@ -11,13 +11,21 @@ class Player:
         self.game = game
         self.x, self.y = PLAYER_POS
         self.angle = PLAYER_ANGLE
-        # self.shot = False
+        self.shot = False # variable to store if the player fired
         # self.health = PLAYER_MAX_HEALTH
         # self.rel = 0
         # self.health_recovery_delay = 700
         # self.time_prev = pg.time.get_ticks()
         # # diagonal movement correction
         # self.diag_move_corr = 1 / math.sqrt(2)
+
+    # Method to listen to the fire event
+    def single_fire_event(self, event):
+        if event.type == pg.MOUSEBUTTONDOWN:
+            if event.button == 1 and not self.shot and not self.game.weapon.reloading:
+                self.game.sound.shotgun.play()
+                self.shot = True
+                self.game.weapon.reloading = True
 
     # Method to move the player
     def movement(self):
