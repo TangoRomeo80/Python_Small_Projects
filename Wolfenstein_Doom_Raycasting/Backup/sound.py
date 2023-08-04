@@ -1,7 +1,9 @@
+# This file will handle all the sound related functionality
+# Import the libraries
 import pygame as pg
 
-
 class Sound:
+    # Constructor to initialize the sound class
     def __init__(self, game):
         self.game = game
         pg.mixer.init()

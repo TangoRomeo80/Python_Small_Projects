@@ -1,8 +1,11 @@
+# This file will implement the pathfinding algorithm for the NPC
+# Import the libraries
 from collections import deque
 from functools import lru_cache
 
 
 class PathFinding:
+    # Constructor to initialize the pathfinding algorithm
     def __init__(self, game):
         self.game = game
         self.map = game.map.mini_map
@@ -10,6 +13,7 @@ class PathFinding:
         self.graph = {}
         self.get_graph()
 
+    
     @lru_cache
     def get_path(self, start, goal):
         self.visited = self.bfs(start, goal, self.graph)
@@ -21,6 +25,7 @@ class PathFinding:
             step = self.visited[step]
         return path[-1]
 
+    # Method to implement the breadth first search algorithm to find the path to player
     def bfs(self, start, goal, graph):
         queue = deque([start])
         visited = {start: None}
@@ -37,9 +42,11 @@ class PathFinding:
                     visited[next_node] = cur_node
         return visited
 
+    # Method to get the next nodes to which the NPC can move
     def get_next_nodes(self, x, y):
         return [(x + dx, y + dy) for dx, dy in self.ways if (x + dx, y + dy) not in self.game.map.world_map]
 
+    # Method to create graph representation of the map
     def get_graph(self):
         for y, row in enumerate(self.map):
             for x, col in enumerate(row):

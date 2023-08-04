@@ -1,6 +1,9 @@
+# File containing all the classes and methods for maps
+# Import the libraries
 import pygame as pg
 
-_ = False
+_ = False # Define a variable to represent a empty space
+# Define the mini map
 mini_map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, _, _, _, _, _, _, _, _, _, _, _, _, _, _, 1],
@@ -36,22 +39,26 @@ mini_map = [
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
 ]
 
-
+# Define the map class
 class Map:
+    # Constructor to initialize the map class
     def __init__(self, game):
-        self.game = game
-        self.mini_map = mini_map
-        self.world_map = {}
-        self.rows = len(self.mini_map)
-        self.cols = len(self.mini_map[0])
-        self.get_map()
+        self.game = game # Define the game
+        self.mini_map = mini_map # Define the mini map
+        self.world_map = {} # This will be obtained by iterating through the mini map
+        self.get_map() # Method to get the map
 
+    # Method to get the map
     def get_map(self):
+        # Iterate through the mini map
         for j, row in enumerate(self.mini_map):
+            # Iterate through the row
             for i, value in enumerate(row):
+                # If the value is not empty
                 if value:
                     self.world_map[(i, j)] = value
 
+    # Method to draw the map
     def draw(self):
         [pg.draw.rect(self.game.screen, 'darkgray', (pos[0] * 100, pos[1] * 100, 100, 100), 2)
          for pos in self.world_map]
