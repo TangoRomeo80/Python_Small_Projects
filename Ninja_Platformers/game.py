@@ -2,6 +2,7 @@
 # Import depenencies
 import sys
 import pygame
+from scripts.entities import PhysicsEntity
 
 # Game class
 class Game:
@@ -15,15 +16,8 @@ class Game:
         self.screen = pygame.display.set_mode((640, 480)) # Define the screen size
         # Define the game clock to force the game to run at a certain fps
         self.clock = pygame.time.Clock()
-        # Load a sample image
-        self.img = pygame.image.load("data/images/clouds/cloud_1.png")
-        self.img.set_colorkey((0, 0, 0))
-        # Set Image position for movement
-        self.img_pos = [160, 260]
-        self.movement = [False, False]
-        # Define area for collision deteciton
-        self.collision_area = pygame.Rect(50, 50, 300, 50)
-
+        # define the player entity
+        self.player = PhysicsEntity(self, 'player', (50, 50), (8, 15))
 
     # Function to run the game loop
     def run(self):
@@ -31,17 +25,6 @@ class Game:
         while True:
             # Fill the screen with sky blue color
             self.screen.fill((14, 219, 248))
-            # Get image rectangle
-            img_r = pygame.Rect(self.img_pos[0], self.img_pos[1], self.img.get_width(), self.img.get_height())
-            if img_r.colliderect(self.collision_area):
-                pygame.draw.rect(self.screen, (0, 100, 255), self.collision_area)
-            else:
-                pygame.draw.rect(self.screen, (0, 50, 155), self.collision_area)
-            
-            # Update the image position
-            self.img_pos[1] += (self.movement[1] - self.movement[0]) * 5
-            # Draw the image on the screen
-            self.screen.blit(self.img, self.img_pos)
 
             # Check for events
             for event in pygame.event.get():
