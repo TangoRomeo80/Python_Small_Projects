@@ -2,6 +2,8 @@
 # Import dependencies
 import pygame
 
+
+
 class PhysicsEntity:
     # Initialize the entity
     def __init__(self, game, e_type, pos, size):
