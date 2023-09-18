@@ -44,7 +44,7 @@ class Game:
             # Render the tilemap
             self.tilemap.render(self.display)
             # Update the player
-            self.player.update((self.movement[1] - self.movement[0], 0))
+            self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             # Render the player
             self.player.render(self.display)
             # Check for events
@@ -60,6 +60,8 @@ class Game:
                         self.movement[0] = True
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = True
+                    if event.key == pygame.K_UP: # Jump
+                        self.player.velocity[1] = -3
                 # Check if the user released a key
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
