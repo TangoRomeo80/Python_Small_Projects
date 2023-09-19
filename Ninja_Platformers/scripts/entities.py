@@ -76,8 +76,8 @@ class PhysicsEntity:
             self.velocity[1] = 0
 
     # Function to render the entity (draw it on the screen)
-    def render(self, surf):
+    def render(self, surf, offset=(0, 0)):
         # Surf denotes the surface on which the entity will be drawn
         # Draw the entity on the surface
-        surf.blit(self.game.assets['player'], self.pos)
+        surf.blit(self.game.assets['player'], (self.pos[0] - offset[0], self.pos[1] - offset[1]))
         

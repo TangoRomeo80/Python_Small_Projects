@@ -5,6 +5,7 @@ import pygame
 from scripts.utils import load_image, load_images
 from scripts.entities import PhysicsEntity
 from scripts.tilemap import Tilemap
+from scripts.clouds import Clouds
 
 # Game class
 class Game:
@@ -28,25 +29,40 @@ class Game:
             'grass': load_images('tiles/grass'), # Load the grass image
             'large_decor': load_images('tiles/large_decor'), # Load the large decor image
             'stone': load_images('tiles/stone'), # Load the stone image
-            'player': load_image('entities/player.png')
+            'player': load_image('entities/player.png'), # Load the player image
+            'background': load_image('background.png'), # Load the background image
+            'clouds': load_images('clouds') # Load the clouds images
         }
+        # Define the clouds
+        self.clouds = Clouds(self.assets['clouds'], count=16)
         # define the player entity
         self.player = PhysicsEntity(self, 'player', (50, 50), (8, 15))
         # Define the tilemap
         self.tilemap = Tilemap(self, tile_size=16)
+        # Define scroll variables for camera
+        self.scroll = [0, 0]
 
     # Function to run the game loop
     def run(self):
         # Run an infinite loop to keep the game running
         while True:
             # Fill the screen with sky blue color
-            self.display.fill((14, 219, 248))
+            self.display.blit(self.assets['background'], (0, 0))
+            # Update the scroll
+            self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
+            self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
+            # Correct the scroll for fractions
+            render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+            # Update the clouds
+            self.clouds.update()
+            # Render the clouds
+            self.clouds.render(self.display, offset=render_scroll)
             # Render the tilemap
-            self.tilemap.render(self.display)
+            self.tilemap.render(self.display, offset=render_scroll)
             # Update the player
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             # Render the player
-            self.player.render(self.display)
+            self.player.render(self.display, offset=render_scroll)
             # Check for events
             for event in pygame.event.get():
                 # Check if the user wants to quit
