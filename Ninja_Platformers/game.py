@@ -2,8 +2,8 @@
 # Import depenencies
 import sys
 import pygame
-from scripts.utils import load_image, load_images
-from scripts.entities import PhysicsEntity
+from scripts.utils import load_image, load_images, Animation
+from scripts.entities import PhysicsEntity, Player
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 
@@ -31,12 +31,17 @@ class Game:
             'stone': load_images('tiles/stone'), # Load the stone image
             'player': load_image('entities/player.png'), # Load the player image
             'background': load_image('background.png'), # Load the background image
-            'clouds': load_images('clouds') # Load the clouds images
+            'clouds': load_images('clouds'), # Load the clouds images
+            'player/idle': Animation(load_images('entities/player/idle'), img_dur=6), # Load the idle animation
+            'player/run': Animation(load_images('entities/player/run'), img_dur=4), # Load the run animation
+            'player/jump': Animation(load_images('entities/player/jump')), # Load the jump animation
+            'plyer/slide': Animation(load_images('entities/player/slide')), # Load the slide animation
+            'player/wall_slide': Animation(load_images('entities/player/wall_slide')), # Load the wall slide animation
         }
         # Define the clouds
         self.clouds = Clouds(self.assets['clouds'], count=16)
         # define the player entity
-        self.player = PhysicsEntity(self, 'player', (50, 50), (8, 15))
+        self.player = Player(self, (50, 50), (8, 15))
         # Define the tilemap
         self.tilemap = Tilemap(self, tile_size=16)
         # Define scroll variables for camera
