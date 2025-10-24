@@ -5,8 +5,8 @@ from pathlib import Path
 
 
 # ---------- Configuration ----------
-PDF_PATH = r"C:\Codes\Python_Small_Projects\teacher_utility\Student list PDF to XLSX\Algo[I]_Student_List.pdf"
-EXCEL_PATH = r"C:\Codes\Python_Small_Projects\teacher_utility\Student list PDF to XLSX\Algo[I]_Student_List.xlsx"
+PDF_PATH = r"C:\Codes\Python_Small_Projects\teacher_utility\Student_list_PDF_to_XLSX\Student List.pdf"
+EXCEL_PATH = r"C:\Codes\Python_Small_Projects\teacher_utility\Student_list_PDF_to_XLSX\Student List.xlsx"
 START_ROW = 2   # 0-indexed -> writes header beginning at Excel row 3
 START_COL = 1   # 0-indexed -> writes header beginning at Excel column B
 EXCEL_ENGINE = "xlsxwriter"  # requires `pip install xlsxwriter`
