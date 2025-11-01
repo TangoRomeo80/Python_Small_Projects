@@ -2,21 +2,18 @@
 # -*- coding: utf-8 -*-
 
 """
-AIUB News & Events image scraper (CS + ICCA/ICCIT + AJSE)
-- Crawls https://www.aiub.edu/category/news-events
-- Follows pagination (?pageNo=&pageSize=)
-- Opens each post and extracts:
+AIUB News & Events image scraper (CS + ICCA/ICCIT + AJSE) with per-event subfolders
+
+- Crawls https://www.aiub.edu/category/news-events (via ?pageNo=&pageSize=)
+- Opens each post, extracts:
     Title, Event Date (Events Date + Year), Organized By, all <img> sources
 - Filters to last N years and "relevant" posts:
     * Department of Computer Science / Computer Science
     * Conferences like ICCA / ICCIT (names in organizer or page text)
     * AIUB Journal of Science and Engineering (AJSE)
     * Broader engineering/CS conference/journal signals (configurable below)
-- Downloads images to aiub_cs_event_images/<YYYY-MM-DD_Title>/...
+- Downloads images to aiub_cs_event_images/<YYYY-MM-DD_Title>_<hash>/...
 - Appends rows into aiub_cs_event_images/metadata.csv
-
-Usage:
-    python aiub_cs_scraper.py
 """
 
 import os
@@ -30,12 +27,11 @@ from urllib.parse import urljoin, urlparse
 import requests
 from bs4 import BeautifulSoup
 
-
 # ---------------- Basic settings ----------------
 BASE = "https://www.aiub.edu"
 LIST_URL = f"{BASE}/category/news-events"
 HEADERS = {
-    "User-Agent": "Rahat-CS-Event-Scraper/1.1 (+contact: your.email@example.com)"
+    "User-Agent": "Rahat-CS-Event-Scraper/1.2 (+contact: your.email@example.com)"
 }
 OUT_DIR = "aiub_cs_event_images"
 META_CSV = os.path.join(OUT_DIR, "metadata.csv")
@@ -47,12 +43,8 @@ SLEEP_BETWEEN_REQUESTS = 0.8   # be polite
 TIMEOUT = 20                   # seconds
 # -------------------------------------------------
 
-
 # ---------- WIDER FILTER CONFIG ----------
-# A post is considered relevant if EITHER:
-#   (A) its "Organized By" text matches any pattern in INCLUDE_ORGANIZER_PATTERNS, OR
-#   (B) the page text (title/body) matches any pattern in INCLUDE_TEXT_PATTERNS.
-
+# Relevant if EITHER "Organized By" matches below OR page text matches below.
 INCLUDE_ORGANIZER_PATTERNS = [
     r"\bDepartment of Computer Science\b",
     r"\bComputer\s*Science\b",
@@ -119,19 +111,27 @@ def unique_name_from_url(url):
     return f"{h}_{base}"
 
 
+def event_subfolder_for(data):
+    """
+    Create a unique, readable folder name per event:
+    <YYYY-MM-DD>_<sanitized title>_<8-char hash of post URL>
+    """
+    date_part = data["event_dt"].strftime("%Y-%m-%d") if data["event_dt"] else "undated"
+    safe_title = re.sub(r"[^A-Za-z0-9._ -]+", "_", data["title"]).strip("_ ")[:80] or "event"
+    short = hashlib.sha1(data["url"].encode("utf-8")).hexdigest()[:8]
+    folder = f"{date_part}_{safe_title}_{short}"
+    return os.path.join(OUT_DIR, folder)
+
+
 def _find_value_after_label(soup, label):
     """
     Find a textual value appearing after a label like 'Events Date' or 'Year'.
-    This is heuristic to handle AIUB's layout variations.
+    Heuristic to handle AIUB's layout variations.
     """
-    # Look for a string that exactly matches the label (with optional :) ignoring case:
     lab = soup.find(string=re.compile(rf"^\s*{label}\s*:?\s*$", re.IGNORECASE))
     if not lab:
         return None
-
-    # Try nearby text nodes
     node = lab.parent
-    # Look ahead a few text nodes to find the next non-empty, non-label value
     for _ in range(8):
         node = node.find_next(string=True)
         if not node:
@@ -151,7 +151,6 @@ def _parse_event_datetime(soup):
     events_date_str = _find_value_after_label(soup, "Events Date")
     year_str = _find_value_after_label(soup, "Year")
 
-    # Primary: use Events Date + Year (e.g., "October 24" + "2025")
     if events_date_str and year_str and year_str.isdigit():
         m = re.match(r"([A-Za-z]+)\s+(\d{1,2})", events_date_str)
         if m:
@@ -162,7 +161,6 @@ def _parse_event_datetime(soup):
                 except ValueError:
                     pass
 
-    # Fallback: try to find "Published Date" and parse nearby "D Month YYYY"
     published_block = soup.find(string=re.compile(r"Published Date", re.IGNORECASE))
     if published_block:
         around = published_block.parent.get_text(" ", strip=True)
@@ -174,7 +172,6 @@ def _parse_event_datetime(soup):
                     return datetime.strptime(f"{d} {mon} {y}", fmt)
                 except ValueError:
                     pass
-
     return None
 
 
@@ -185,20 +182,15 @@ def parse_post(url):
     """
     soup = get_soup(url)
 
-    # Title
     h1 = soup.find(["h1", "h2"])
     title = (h1.get_text(strip=True) if h1 else "").strip()
 
-    # Organized By
     organized_by = _find_value_after_label(soup, "Organized By") or ""
 
-    # Event datetime
     event_dt = _parse_event_datetime(soup)
 
-    # Full page text (for broader matching)
     page_text = soup.get_text(" ", strip=True)
 
-    # Images: include hero + inline (handle lazy attrs)
     img_urls = set()
     for img in soup.find_all("img"):
         src = img.get("src") or img.get("data-src") or img.get("data-original")
@@ -230,13 +222,11 @@ def iter_listing_pages():
         links = []
         for a in soup.find_all("a", href=True):
             href = a["href"].strip()
-            # Post URLs look like: /some-post-slug
             if href.startswith("/") and href.count("/") == 1 and len(href) > 2:
                 if any(skip in href for skip in ("/category/", "/faculties/", "/notice", "/notices", "/newsletter")):
                     continue
                 links.append(urljoin(BASE, href))
 
-        # Deduplicate while preserving order
         seen = set()
         unique_links = []
         for u in links:
@@ -269,7 +259,6 @@ def download(url, dest_dir):
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
 
-    # Prepare metadata CSV
     write_header = not os.path.exists(META_CSV)
     fcsv = open(META_CSV, "a", newline="", encoding="utf-8")
     w = csv.writer(fcsv)
@@ -295,7 +284,6 @@ def main():
             # --- Relevance filter (broadened) ---
             org_text = data.get("organized_by", "")
             page_text = data.get("page_text", "")
-
             is_relevant = (
                 any_match(INCLUDE_ORGANIZER_PATTERNS, org_text) or
                 any_match(INCLUDE_TEXT_PATTERNS, page_text)
@@ -303,11 +291,10 @@ def main():
             if not is_relevant:
                 continue
 
-            # --- Download images + write metadata ---
-            date_part = data["event_dt"].strftime("%Y-%m-%d") if data["event_dt"] else "undated"
-            safe_title = re.sub(r"[^A-Za-z0-9._ -]+", "_", data["title"])[:80].strip("_ ")
-            event_dir = os.path.join(OUT_DIR, f"{date_part}_{safe_title or 'event'}")
+            # --- Per-event subfolder (unique) ---
+            event_dir = event_subfolder_for(data)
 
+            # --- Download images + write metadata ---
             if not data["images"]:
                 print(f"[INFO] No images in: {data['title']}")
 
